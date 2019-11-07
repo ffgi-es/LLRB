@@ -32,13 +32,48 @@ module RubyLLRB
         @size += 1
         return Node.new(key,value)
       else
+        colour_flip(node) if is_red(node.left) && is_red(node.right)
+
         case key <=> node.key
         when 0 then node.value = value
         when -1 then node.left = node_insert(node.left, key, value)
         when 1 then node.right = node_insert(node.right, key, value)
         end
+
+        node = rotate_left(node) if is_red(node.right) && !is_red(node.left)
+        node = rotate_right(node) if is_red(node.left) && is_red(node.left.left)
+
         return node
       end
+    end
+
+    def is_red node
+      return node.colour if node
+      return false
+    end
+
+    def colour_flip node
+      node.colour = !node.colour
+      node.left.colour = !node.left.colour if node.left
+      node.right.colour = !node.right.colour if node.right
+    end
+
+    def rotate_left(node)
+      tmp = node.right
+      node.right = tmp.left
+      tmp.left = node
+      tmp.colour = node.colour
+      node.colour = RED
+      return tmp
+    end
+
+    def rotate_right(node)
+      tmp = node.left
+      node.left = tmp.right
+      tmp.right = node
+      tmp.colour = node.colour
+      node.colour = RED
+      return tmp
     end
   end
 

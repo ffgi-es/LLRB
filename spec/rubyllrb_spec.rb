@@ -47,7 +47,6 @@ describe LLRB do
     end
 
     it "should balance the tree (simple)" do
-      pending
       subject.insert(1, :one)
       subject.insert(2, :two)
       subject.insert(3, :three)
