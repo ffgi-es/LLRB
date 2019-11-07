@@ -26,6 +26,10 @@ module RubyLLRB
       return nil
     end
 
+    def each &block
+      root_node.each &block if root_node
+    end
+
     private
     def node_insert(node, key, value)
       if node.nil?
@@ -84,6 +88,12 @@ module RubyLLRB
       @key = key
       @value = value
       @colour = RED
+    end
+
+    def each &block
+      left.each &block if left
+      yield(key, value)
+      right.each &block if right
     end
   end
 end

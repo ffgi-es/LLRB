@@ -22,6 +22,7 @@ describe LLRB do
 
   it { is_expected.to respond_to(:insert).with(2).arguments }
   it { is_expected.to respond_to(:search).with(1).arguments }
+  it { is_expected.to respond_to(:each).with(0).arguments }
 
   describe "#insert" do
     it "should accept a key and value" do
@@ -69,6 +70,21 @@ describe LLRB do
       subject.insert(2, :two)
       subject.insert(3, :three)
       expect(subject.search(4)).to be_nil
+    end
+  end
+
+  describe "#each" do
+    it "should iterate over the tree in order of the keys" do
+      [*1..16].shuffle.each { |x| subject.insert(x, x.to_s) }
+      arr = []
+      subject.each { |key, value| arr << key }
+      expect(arr).to eq [*1..16]
+    end
+    
+    it "should do nothing if the tree is empty" do
+      arr = []
+      subject.each { |key, value| arr << key }
+      expect(arr).to eq []
     end
   end
 end
