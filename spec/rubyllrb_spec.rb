@@ -28,6 +28,9 @@ describe LLRB do
   it { is_expected.to respond_to(:insert).with(2).arguments }
   it { is_expected.to respond_to(:search).with(1).arguments }
   it { is_expected.to respond_to(:each).with(0).arguments }
+  it { is_expected.to respond_to(:pop).with(0).arguments }
+  it { is_expected.to respond_to(:shift).with(0).arguments }
+  it { is_expected.to respond_to(:delete).with(1).arguments }
 
   describe "#insert" do
     it "should accept a key and value" do
@@ -64,7 +67,7 @@ describe LLRB do
       return [find_max_depth(node.left, d+1), find_max_depth(node.right, d+1)].max
     end
 
-    (1..6).each do |x|
+    (1..5).each do |x|
       it "should balance the tree #{x}" do
         set_up(subject, 10**x)
         depth = find_max_depth(subject.root_node, 0)
@@ -132,6 +135,38 @@ describe LLRB do
       subject.each { |key, value| arr << key }
       expect(arr).to eq []
     end
+  end
+
+  describe "#pop" do
+    it "should return nil if the tree is empty" do
+      result = subject.pop
+      expect(result).to be_nil
+    end
+
+    it "should delete and return the value at the max key" do
+      set_up(subject, 10)
+      result = subject.pop
+      expect(result).to eq 10.to_s
+      expect(subject.search(10)).to be_nil
+      expect(subject).to eq set_up(LLRB.new, 9)
+    end
+  end
+
+  describe "#shift" do
+    it "should return nil if the tree is empty" do
+      result = subject.shift
+      expect(result).to be_nil
+    end
+
+    it "should delete and the return the value at the min key" do
+      set_up(subject, 10)
+      result = subject.shift
+      expect(result).to eq 1.to_s
+      expect(subject.search(1)).to be_nil
+    end
+  end
+
+  describe "#delete" do
   end
 end
 

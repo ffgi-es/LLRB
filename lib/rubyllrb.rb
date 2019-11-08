@@ -38,6 +38,25 @@ module RubyLLRB
       root_node.each &block if root_node
     end
 
+    def pop
+      return nil if root_node.nil?
+      @root_node, value = delete_max(@root_node)
+      root_node.colour = BLACK
+      @size -= 1
+      return value
+    end
+
+    def shift
+      return nil if root_node.nil?
+      @root_node, value = delete_min(@root_node)
+      root_node.colour = BLACK
+      @size -= 1
+      return value
+    end
+
+    def delete key
+    end
+
     private
     def node_insert(node, key, value)
       if node.nil?
@@ -54,6 +73,21 @@ module RubyLLRB
       end
     end
 
+    def delete_max node
+      node = rotate_right(node) if is_red node.left
+      return [nil, node.value] if node.right.nil?
+      node = move_red_right(node) if !is_red(node.right) && !is_red(node.right.left)
+      node.right, value = delete_max(node.right)
+      return [fix_balance(node), value]
+    end
+
+    def delete_min node
+      return [nil, node.value] if node.left.nil?
+      node = move_red_left(node) if !is_red(node.left) && !is_red(node.left.left)
+      node.left, value = delete_min(node.left)
+      return [fix_balance(node), value]
+    end
+
     def fix_balance node
       node = rotate_left(node) if is_red(node.right) && !is_red(node.left)
       node = rotate_right(node) if is_red(node.left) && is_red(node.left.left)
@@ -64,6 +98,25 @@ module RubyLLRB
     def is_red node
       return node.colour if node
       return false
+    end
+
+    def move_red_right node
+      colour_flip(node)
+      if is_red node.left.left
+        node = rotate_right(node)
+        colour_flip(node)
+      end
+      return node
+    end
+
+    def move_red_left node
+      colour_flip(node)
+      if is_red(node.right.left)
+        node.right = rotate_right(node.right)
+        node = rotate_left(node)
+        colour_flip(node)
+      end
+      return node
     end
 
     def colour_flip node
