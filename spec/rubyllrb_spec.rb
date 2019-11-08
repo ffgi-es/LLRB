@@ -53,6 +53,19 @@ describe LLRB do
       subject.insert(3, :three)
       expect(subject.root_node.key).to eq 2
     end
+    
+    def find_max_depth node, d
+      return d if node.nil?
+      return [find_max_depth(node.left, d+1), find_max_depth(node.right, d+1)].max
+    end
+
+    (1..6).each do |x|
+      it "should balance the tree #{x}" do
+        [*1..10**x].shuffle.each { |y| subject.insert(y, y) }
+        depth = find_max_depth(subject.root_node, 0)
+        expect(depth).to be < (2.2 * Math.log(10**x))
+      end
+    end
   end
 
   describe "#search" do
