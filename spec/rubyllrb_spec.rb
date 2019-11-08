@@ -139,18 +139,44 @@ describe LLRB do
     end
   end
 
+  describe "#max" do
+    it "should return nill if the tree is empty" do
+      expect(subject.max).to be_nil
+    end
+
+    it "should return the max key-value pair" do
+      set_up(subject, 10)
+      expect(subject.max).to eq [10, 10.to_s]
+      expect(subject.search(10)).to eq 10.to_s
+      expect(subject.size).to eq 10
+    end
+  end
+
   describe "#pop" do
     it "should return nil if the tree is empty" do
       result = subject.pop
       expect(result).to be_nil
     end
 
-    it "should delete and return the value at the max key" do
+    it "should delete and return the max key-value pair" do
       set_up(subject, 10)
       result = subject.pop
       expect(result).to eq [10, 10.to_s]
       expect(subject.search(10)).to be_nil
       expect(subject).to eq set_up(LLRB.new, 9)
+    end
+  end
+
+  describe "#min" do
+    it "should return nill if the tree is empty" do
+      expect(subject.min).to be_nil
+    end
+
+    it "should return the min key-value pair" do
+      set_up(subject, 10)
+      expect(subject.min).to eq [1, 1.to_s]
+      expect(subject.search(1)).to eq 1.to_s
+      expect(subject.size).to eq 10
     end
   end
 

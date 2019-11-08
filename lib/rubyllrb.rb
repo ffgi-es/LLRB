@@ -39,6 +39,7 @@ module RubyLLRB
     end
 
     def max
+      return node_max root_node unless root_node.nil?
     end
 
     def pop
@@ -50,6 +51,7 @@ module RubyLLRB
     end
 
     def min
+      return node_min root_node unless root_node.nil?
     end
 
     def shift
@@ -93,6 +95,8 @@ module RubyLLRB
       when 1, 0
         node = rotate_right(node) if is_red node.left
         return [nil, node.value] if comp == 0 and node.right.nil?
+        node = move_red_right(node) if !is_red(node.right) && 
+          !node.right.nil? && !is_red(node.right.left)
         if comp == 0
           value = node.value
           node.key, node.value = node_min(node.right)
@@ -107,6 +111,11 @@ module RubyLLRB
     def node_min(node)
       return [node.key, node.value] if node.left.nil?
       return node_min(node.left)
+    end
+
+    def node_max node
+      return [node.key, node.value] if node.right.nil?
+      return node_max(node.right)
     end
 
     def delete_max node
