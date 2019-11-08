@@ -63,7 +63,7 @@ describe LLRB do
       it "should balance the tree #{x}" do
         [*1..10**x].shuffle.each { |y| subject.insert(y, y) }
         depth = find_max_depth(subject.root_node, 0)
-        expect(depth).to be < (2.2 * Math.log(10**x))
+        expect(depth).to be <= (2.1 * Math.log(10**x)).ceil
       end
     end
   end
