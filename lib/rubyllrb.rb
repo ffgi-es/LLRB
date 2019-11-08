@@ -38,12 +38,18 @@ module RubyLLRB
       root_node.each &block if root_node
     end
 
+    def max
+    end
+
     def pop
       return nil if root_node.nil?
       @root_node, value = delete_max(@root_node)
       root_node.colour = BLACK
       @size -= 1
       return value
+    end
+
+    def min
     end
 
     def shift
@@ -88,8 +94,9 @@ module RubyLLRB
         node = rotate_right(node) if is_red node.left
         return [nil, node.value] if comp == 0 and node.right.nil?
         if comp == 0
+          value = node.value
           node.key, node.value = node_min(node.right)
-          node.right, value = delete_min(node.right)
+          node.right, _ = delete_min(node.right)
         else
           node.right, value = node_delete(node.right, key)
         end
@@ -104,14 +111,14 @@ module RubyLLRB
 
     def delete_max node
       node = rotate_right(node) if is_red node.left
-      return [nil, node.value] if node.right.nil?
+      return [nil, [node.key, node.value]] if node.right.nil?
       node = move_red_right(node) if !is_red(node.right) && !is_red(node.right.left)
       node.right, value = delete_max(node.right)
       return [fix_balance(node), value]
     end
 
     def delete_min node
-      return [nil, node.value] if node.left.nil?
+      return [nil, [node.key, node.value]] if node.left.nil?
       node = move_red_left(node) if !is_red(node.left) && !is_red(node.left.left)
       node.left, value = delete_min(node.left)
       return [fix_balance(node), value]

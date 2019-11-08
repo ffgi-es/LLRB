@@ -36,6 +36,8 @@ describe LLRB do
   it { is_expected.to respond_to(:pop).with(0).arguments }
   it { is_expected.to respond_to(:shift).with(0).arguments }
   it { is_expected.to respond_to(:delete).with(1).arguments }
+  it { is_expected.to respond_to(:min).with(0).arguments }
+  it { is_expected.to respond_to(:max).with(0).arguments }
 
   describe "#insert" do
     it "should accept a key and value" do
@@ -146,7 +148,7 @@ describe LLRB do
     it "should delete and return the value at the max key" do
       set_up(subject, 10)
       result = subject.pop
-      expect(result).to eq 10.to_s
+      expect(result).to eq [10, 10.to_s]
       expect(subject.search(10)).to be_nil
       expect(subject).to eq set_up(LLRB.new, 9)
     end
@@ -161,7 +163,7 @@ describe LLRB do
     it "should delete and the return the value at the min key" do
       set_up(subject, 10)
       result = subject.shift
-      expect(result).to eq 1.to_s
+      expect(result).to eq [1, 1.to_s]
       expect(subject.search(1)).to be_nil
     end
   end
