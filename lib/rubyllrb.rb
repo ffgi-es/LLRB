@@ -55,6 +55,11 @@ module RubyLLRB
     end
 
     def delete key
+      return nil if root_node.nil?
+      @root_node, value = node_delete(root_node, key)
+      root_node.colour = BLACK
+      @size -= 1 unless value.nil?
+      return value
     end
 
     private
@@ -71,6 +76,30 @@ module RubyLLRB
 
         return fix_balance node
       end
+    end
+
+    def node_delete node, key
+      return [nil, nil] if node.nil?
+      case comp = key <=> node.key
+      when -1
+        node = move_red_left(node) if !is_red(node.left) && !is_red(node.left.left)
+        node.left, value = node_delete(node.left, key)
+      when 1, 0
+        node = rotate_right(node) if is_red node.left
+        return [nil, node.value] if comp == 0 and node.right.nil?
+        if comp == 0
+          node.key, node.value = node_min(node.right)
+          node.right, value = delete_min(node.right)
+        else
+          node.right, value = node_delete(node.right, key)
+        end
+      end
+      return [fix_balance(node), value]
+    end
+
+    def node_min(node)
+      return [node.key, node.value] if node.left.nil?
+      return node_min(node.left)
     end
 
     def delete_max node

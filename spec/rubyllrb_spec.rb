@@ -20,6 +20,11 @@ describe LLRB do
     return tree
   end
 
+  def find_max_depth node, d
+    return d if node.nil?
+    return [find_max_depth(node.left, d+1), find_max_depth(node.right, d+1)].max
+  end
+
   it { is_expected.to be_instance_of LLRB }
 
   it { is_expected.to have_attributes(root_node: nil) }
@@ -62,11 +67,6 @@ describe LLRB do
       expect(subject.root_node.key).to eq 2
     end
     
-    def find_max_depth node, d
-      return d if node.nil?
-      return [find_max_depth(node.left, d+1), find_max_depth(node.right, d+1)].max
-    end
-
     (1..5).each do |x|
       it "should balance the tree #{x}" do
         set_up(subject, 10**x)
@@ -167,6 +167,24 @@ describe LLRB do
   end
 
   describe "#delete" do
+    it "should return nil if the tree is empty" do
+      expect(subject.delete(1)).to be_nil
+    end
+
+    it "should return nil if the key doesn't exist" do
+      set_up(subject, 10)
+      expect(subject.delete(15)).to be_nil
+      expect(subject.size).to eq 10
+    end
+
+    it "should delete and return the value of the key" do
+      set_up(subject, 10)
+      key = rand(1..10)
+      result = subject.delete(key)
+      expect(result).to eq key.to_s
+      expect(subject.search(key)).to be_nil
+      expect(subject.size).to eq 9
+    end
   end
 end
 
