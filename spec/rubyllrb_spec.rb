@@ -86,6 +86,35 @@ describe LLRB do
     end
   end
 
+  describe "#==" do
+    it "should return true if both trees are empty" do
+      other = LLRB.new
+      expect(subject == other).to be true
+    end
+
+    it "should return false if it isn't a LLRB tree" do
+      other = "A string"
+      expect(subject == other).to be false
+      other = 1
+      expect(subject == other).to be false
+      other = :symbol
+      expect(subject == other).to be false
+    end
+
+    it "should return true if all keys and values are the same" do
+      [*1..10].shuffle.each { |x| subject.insert(x, x.to_s) }
+      other = LLRB.new
+      [*1..10].shuffle.each { |x| other.insert(x, x.to_s) }
+      expect(subject == other).to be true
+    end
+
+    it "should return false if the sizes are different" do
+      [*1..5].shuffle.each { |x| subject.insert(x, x.to_s) }
+      other = LLRB.new
+      expect(subject == other).to be false
+    end
+  end
+
   describe "#each" do
     it "should iterate over the tree in order of the keys" do
       [*1..16].shuffle.each { |x| subject.insert(x, x.to_s) }

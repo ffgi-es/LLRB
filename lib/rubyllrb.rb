@@ -26,6 +26,14 @@ module RubyLLRB
       return nil
     end
 
+    def == other
+      return false unless other.is_a? LLRB
+      return false unless self.size == other.size
+      return true if self.size == 0
+      self.root_node.each { |k, v| return false unless other.search(k) == v }
+      return true
+    end
+
     def each &block
       root_node.each &block if root_node
     end
