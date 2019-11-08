@@ -50,12 +50,15 @@ module RubyLLRB
         when 1 then node.right = node_insert(node.right, key, value)
         end
 
-        node = rotate_left(node) if is_red(node.right) && !is_red(node.left)
-        node = rotate_right(node) if is_red(node.left) && is_red(node.left.left)
-        colour_flip(node) if is_red(node.left) && is_red(node.right)
-
-        return node
+        return fix_balance node
       end
+    end
+
+    def fix_balance node
+      node = rotate_left(node) if is_red(node.right) && !is_red(node.left)
+      node = rotate_right(node) if is_red(node.left) && is_red(node.left.left)
+      colour_flip(node) if is_red(node.left) && is_red(node.right)
+      return node
     end
 
     def is_red node

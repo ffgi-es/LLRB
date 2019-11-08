@@ -15,6 +15,11 @@ describe LLRB do
   let(:llrb) { LLRB.new }
   subject { llrb }
 
+  def set_up(tree, size)
+    [*1..size].shuffle.each { |x| tree.insert(x, x.to_s) }
+    return tree
+  end
+
   it { is_expected.to be_instance_of LLRB }
 
   it { is_expected.to have_attributes(root_node: nil) }
@@ -61,7 +66,7 @@ describe LLRB do
 
     (1..6).each do |x|
       it "should balance the tree #{x}" do
-        [*1..10**x].shuffle.each { |y| subject.insert(y, y) }
+        set_up(subject, 10**x)
         depth = find_max_depth(subject.root_node, 0)
         expect(depth).to be <= (2.1 * Math.log(10**x)).ceil
       end
@@ -102,14 +107,13 @@ describe LLRB do
     end
 
     it "should return true if all keys and values are the same" do
-      [*1..10].shuffle.each { |x| subject.insert(x, x.to_s) }
-      other = LLRB.new
-      [*1..10].shuffle.each { |x| other.insert(x, x.to_s) }
+      set_up(subject, 10)
+      other = set_up(LLRB.new, 10)
       expect(subject == other).to be true
     end
 
     it "should return false if the sizes are different" do
-      [*1..5].shuffle.each { |x| subject.insert(x, x.to_s) }
+      set_up(subject, 5)
       other = LLRB.new
       expect(subject == other).to be false
     end
@@ -117,7 +121,7 @@ describe LLRB do
 
   describe "#each" do
     it "should iterate over the tree in order of the keys" do
-      [*1..16].shuffle.each { |x| subject.insert(x, x.to_s) }
+      set_up(subject, 16)
       arr = []
       subject.each { |key, value| arr << key }
       expect(arr).to eq [*1..16]
