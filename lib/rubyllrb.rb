@@ -28,14 +28,15 @@ module RubyLLRB
 
     def == other
       return false unless other.is_a? LLRB
-      return false unless self.size == other.size
-      return true if self.size == 0
-      self.root_node.each { |k, v| return false unless other.search(k) == v }
+      return false unless size == other.size
+      return true if size.zero?
+
+      root_node.each { |k, v| return false unless other.search(k) == v }
       return true
     end
 
     def each &block
-      root_node.each &block if root_node
+      root_node&.each(&block)
     end
 
     def max
@@ -44,6 +45,7 @@ module RubyLLRB
 
     def pop
       return nil if root_node.nil?
+
       @root_node, value = delete_max(@root_node)
       root_node.colour = BLACK
       @size -= 1
@@ -56,6 +58,7 @@ module RubyLLRB
 
     def shift
       return nil if root_node.nil?
+
       @root_node, value = delete_min(@root_node)
       root_node.colour = BLACK
       @size -= 1
@@ -64,6 +67,7 @@ module RubyLLRB
 
     def delete key
       return nil if root_node.nil?
+
       @root_node, value = node_delete(root_node, key)
       root_node.colour = BLACK
       @size -= 1 unless value.nil?
@@ -74,30 +78,36 @@ module RubyLLRB
     def node_insert(node, key, value)
       if node.nil?
         @size += 1
-        return Node.new(key,value)
-      else
-        case key <=> node.key
-        when 0 then node.value = value
-        when -1 then node.left = node_insert(node.left, key, value)
-        when 1 then node.right = node_insert(node.right, key, value)
-        end
-
-        return fix_balance node
+        return Node.new(key, value)
       end
+
+      insert_below(node, key, value)
+    end
+
+    def insert_below(node, key, value)
+      case key <=> node.key
+      when 0 then node.value = value
+      when -1 then node.left = node_insert(node.left, key, value)
+      when 1 then node.right = node_insert(node.right, key, value)
+      end
+
+      fix_balance node
     end
 
     def node_delete node, key
       return [nil, nil] if node.nil?
-      case comp = key <=> node.key
-      when -1
-        node = move_red_left(node) if !is_red(node.left) && !is_red(node.left.left)
+
+      if (key <=> node.key).negative?
+        node = move_red_left(node) if !red?(node.left) && !red?(node.left.left)
         node.left, value = node_delete(node.left, key)
-      when 1, 0
-        node = rotate_right(node) if is_red node.left
-        return [nil, node.value] if comp == 0 and node.right.nil?
-        node = move_red_right(node) if !is_red(node.right) && 
-          !node.right.nil? && !is_red(node.right.left)
-        if comp == 0
+      else
+        node = rotate_right(node) if red? node.left
+        return [nil, node.value] if (key <=> node.key).zero? && node.right.nil?
+
+        node = move_red_right(node) if !red?(node.right) && 
+          !node.right.nil? && !red?(node.right.left)
+
+        if (key <=> node.key).zero?
           value = node.value
           node.key, node.value = node_min(node.right)
           node.right, _ = delete_min(node.right)
@@ -105,49 +115,55 @@ module RubyLLRB
           node.right, value = node_delete(node.right, key)
         end
       end
+
       return [fix_balance(node), value]
     end
 
     def node_min(node)
       return [node.key, node.value] if node.left.nil?
+
       return node_min(node.left)
     end
 
     def node_max node
       return [node.key, node.value] if node.right.nil?
+
       return node_max(node.right)
     end
 
     def delete_max node
-      node = rotate_right(node) if is_red node.left
+      node = rotate_right(node) if red? node.left
       return [nil, [node.key, node.value]] if node.right.nil?
-      node = move_red_right(node) if !is_red(node.right) && !is_red(node.right.left)
+
+      node = move_red_right(node) if !red?(node.right) && !red?(node.right.left)
       node.right, value = delete_max(node.right)
       return [fix_balance(node), value]
     end
 
     def delete_min node
       return [nil, [node.key, node.value]] if node.left.nil?
-      node = move_red_left(node) if !is_red(node.left) && !is_red(node.left.left)
+
+      node = move_red_left(node) if !red?(node.left) && !red?(node.left.left)
       node.left, value = delete_min(node.left)
       return [fix_balance(node), value]
     end
 
     def fix_balance node
-      node = rotate_left(node) if is_red(node.right) && !is_red(node.left)
-      node = rotate_right(node) if is_red(node.left) && is_red(node.left.left)
-      colour_flip(node) if is_red(node.left) && is_red(node.right)
+      node = rotate_left(node) if red?(node.right) && !red?(node.left)
+      node = rotate_right(node) if red?(node.left) && red?(node.left.left)
+      colour_flip(node) if red?(node.left) && red?(node.right)
       return node
     end
 
-    def is_red node
+    def red? node
       return node.colour if node
+
       return false
     end
 
     def move_red_right node
       colour_flip(node)
-      if is_red node.left.left
+      if red? node.left.left
         node = rotate_right(node)
         colour_flip(node)
       end
@@ -156,7 +172,7 @@ module RubyLLRB
 
     def move_red_left node
       colour_flip(node)
-      if is_red(node.right.left)
+      if red?(node.right.left)
         node.right = rotate_right(node.right)
         node = rotate_left(node)
         colour_flip(node)
@@ -199,9 +215,9 @@ module RubyLLRB
     end
 
     def each &block
-      left.each &block if left
+      left&.each(&block)
       yield(key, value)
-      right.each &block if right
+      right&.each(&block)
     end
   end
 end

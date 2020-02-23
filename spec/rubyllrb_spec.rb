@@ -1,31 +1,31 @@
 require 'rubyllrb'
-include RubyLLRB
 
 describe "constants" do
   it "should have declared a RED constant" do
-    expect(RED).to eq true
+    expect(RubyLLRB::RED).to eq true
   end
 
   it "should have declared a BLACK constant" do
-    expect(BLACK).to eq false
+    expect(RubyLLRB::BLACK).to eq false
   end
 end
 
-describe LLRB do
-  let(:llrb) { LLRB.new }
-  subject { llrb }
+describe RubyLLRB::LLRB do
+  subject { RubyLLRB::LLRB.new }
 
   def set_up(tree, size)
     [*1..size].shuffle.each { |x| tree.insert(x, x.to_s) }
     return tree
   end
 
-  def find_max_depth node, d
-    return d if node.nil?
-    return [find_max_depth(node.left, d+1), find_max_depth(node.right, d+1)].max
+  def find_max_depth node, depth
+    return depth if node.nil?
+
+    return [find_max_depth(node.left, depth + 1),
+            find_max_depth(node.right, depth + 1)].max
   end
 
-  it { is_expected.to be_instance_of LLRB }
+  it { is_expected.to be_instance_of RubyLLRB::LLRB }
 
   it { is_expected.to have_attributes(root_node: nil) }
   it { is_expected.to have_attributes(size: 0) }
@@ -41,7 +41,7 @@ describe LLRB do
 
   describe "#insert" do
     it "should accept a key and value" do
-      expect{ subject.insert(1, "hello") }.to_not raise_error
+      expect { subject.insert(1, "hello") }.to_not raise_error
     end
 
     it "should increase the size if a new key is added" do
@@ -59,7 +59,7 @@ describe LLRB do
 
     it "should set the root to black" do
       subject.insert(1, :one)
-      expect(subject.root_node.colour).to eq BLACK
+      expect(subject.root_node.colour).to eq RubyLLRB::BLACK
     end
 
     it "should balance the tree (simple)" do
@@ -98,11 +98,11 @@ describe LLRB do
 
   describe "#==" do
     it "should return true if both trees are empty" do
-      other = LLRB.new
+      other = RubyLLRB::LLRB.new
       expect(subject == other).to be true
     end
 
-    it "should return false if it isn't a LLRB tree" do
+    it "should return false if it isn't a RubyLLRB::LLRB tree" do
       other = "A string"
       expect(subject == other).to be false
       other = 1
@@ -113,13 +113,13 @@ describe LLRB do
 
     it "should return true if all keys and values are the same" do
       set_up(subject, 10)
-      other = set_up(LLRB.new, 10)
+      other = set_up(RubyLLRB::LLRB.new, 10)
       expect(subject == other).to be true
     end
 
     it "should return false if the sizes are different" do
       set_up(subject, 5)
-      other = LLRB.new
+      other = RubyLLRB::LLRB.new
       expect(subject == other).to be false
     end
   end
@@ -128,13 +128,13 @@ describe LLRB do
     it "should iterate over the tree in order of the keys" do
       set_up(subject, 16)
       arr = []
-      subject.each { |key, value| arr << key }
+      subject.each { |key, _| arr << key }
       expect(arr).to eq [*1..16]
     end
     
     it "should do nothing if the tree is empty" do
       arr = []
-      subject.each { |key, value| arr << key }
+      subject.each { |key, _| arr << key }
       expect(arr).to eq []
     end
   end
@@ -163,7 +163,7 @@ describe LLRB do
       result = subject.pop
       expect(result).to eq [10, 10.to_s]
       expect(subject.search(10)).to be_nil
-      expect(subject).to eq set_up(LLRB.new, 9)
+      expect(subject).to eq set_up(RubyLLRB::LLRB.new, 9)
     end
   end
 
@@ -207,20 +207,32 @@ describe LLRB do
 
     it "should delete and return the value of the key" do
       set_up(subject, 10)
-      key = rand(1..10)
+      key = 7
       result = subject.delete(key)
-      expect(result).to eq key.to_s
-      expect(subject.search(key)).to be_nil
+      expect(result).to eq "7"
+    end
+
+    it "should delete the key" do
+      set_up(subject, 10)
+      key = rand(1..10)
+      subject.delete key
+      expect(subject.search key).to be_nil
+    end
+
+    it "should decrease the size" do
+      set_up(subject, 10)
+      key = rand(1..10)
+      subject.delete key
       expect(subject.size).to eq 9
     end
   end
 end
 
-describe Node do
-  let(:node) { Node.new(:key, :value) }
+describe RubyLLRB::Node do
+  let(:node) { RubyLLRB::Node.new(:key, :value) }
   subject { node }
 
-  it { is_expected.to be_instance_of Node }
+  it { is_expected.to be_instance_of RubyLLRB::Node }
 
   it { is_expected.to have_attributes(colour: true) }
   it { is_expected.to have_attributes(key: :key) }
