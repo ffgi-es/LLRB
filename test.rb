@@ -35,6 +35,9 @@ def test_structures n
     x.report("- hash:") do
       N1.times { hash.max }
     end
+    x.report("- hash manual:") do
+      N1.times { hash.reduce { |r, (k, v)| r[0] > k ? r : [k, v] } }
+    end
     x.report("- llrb:") do
       N1.times { llrb.max }
     end
