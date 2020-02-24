@@ -19,4 +19,10 @@ describe CLLRB::LLRB do
       expect(subject[1] = "two").to eq "two"
     end
   end
+
+  describe "#size" do
+    it "should be zero for a tree with no nodes" do
+      expect(subject.size).to eq 0
+    end
+  end
 end
