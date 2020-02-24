@@ -78,6 +78,12 @@ static void insert_node(struct node* n, VALUE key, VALUE value) {
     }
 }
 
+VALUE llrb_initialize(VALUE obj) {
+    rb_iv_set(obj, "@size", INT2FIX(0));
+
+    return obj;
+}
+
 VALUE squareBrackets(VALUE obj, VALUE index) {
     if (!NIL_P(rb_iv_get(obj, "@root"))) { 
         struct node* n;
@@ -96,11 +102,12 @@ VALUE assignSquareBrackets(VALUE obj, VALUE index, VALUE value) {
         TypedData_Get_Struct(rb_iv_get(obj, "@root"), struct node, &node_type, n);
         insert_node(n, index, value);
     }
+    rb_iv_set(obj, "@size", INT2NUM(NUM2INT(rb_iv_get(obj, "@size")) + 1));
     return value;
 }
 
 VALUE size(VALUE obj) {
-    return INT2NUM(0);
+    return rb_iv_get(obj, "@size");
 }
 
 void Init_cllrb() {
@@ -111,6 +118,7 @@ void Init_cllrb() {
     rb_define_alloc_func(rb_cNode, node_alloc);
     rb_define_singleton_method(rb_cNode, "new", node_new, 2);
 
+    rb_define_method(rb_cLLRB, "initialize", llrb_initialize, 0);
     rb_define_method(rb_cLLRB, "[]", &squareBrackets, 1);
     rb_define_method(rb_cLLRB, "[]=", &assignSquareBrackets, 2);
     rb_define_method(rb_cLLRB, "size", &size, 0);

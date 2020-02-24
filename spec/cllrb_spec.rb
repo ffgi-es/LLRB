@@ -32,6 +32,13 @@ describe CLLRB::LLRB do
     it "should return the value assigned to the key" do
       expect(subject[1] = "two").to eq "two"
     end
+
+    it "should increase the size by 1" do
+      subject[1] = "blank"
+      expect(subject.size).to eq 1
+      subject[4] = "random"
+      expect(subject.size).to eq 2
+    end
   end
 
   describe "#size" do
