@@ -3,13 +3,19 @@
 #include "extconf.h"
 
 VALUE rb_mCLLRB;
-VALUE rb_cNode;
+VALUE rb_cTree;
 VALUE rb_cLLRB;
 
 struct node {
     VALUE key;
     VALUE value;
-    struct node* next;
+    bool red;
+    struct node* lower;
+    struct node* higher;
+};
+
+struct tree {
+    struct node* root;
 };
 
 void mark_node(void* curr) {
@@ -19,7 +25,12 @@ void mark_node(void* curr) {
     rb_gc_mark(n->key);
     rb_gc_mark(n->value);
 
-    mark_node(n->next);
+    mark_node(n->lower);
+    mark_node(n->higher);
+}
+
+void mark_tree(void* t) {
+    mark_node(((struct tree*) t)->root);
 }
 
 void free_node(void* curr) {
@@ -27,92 +38,160 @@ void free_node(void* curr) {
 
     if (!n) return;
 
-    free_node(n->next);
+    free_node(n->lower);
+    free_node(n->higher);
 
     free(n);
 }
 
-static const rb_data_type_t node_type = {
-    "node",
-    {mark_node, free_node,},
+void free_tree(void* t) {
+    free_node(((struct tree*) t)->root);
+}
+
+static const rb_data_type_t tree_type = {
+    "tree",
+    {mark_tree, free_tree,},
     0, 0,
     RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
-static VALUE node_alloc(VALUE klass) {
-    struct node* n;
-    return TypedData_Make_Struct(klass, struct node, &node_type, n);
+static VALUE tree_alloc(VALUE klass) {
+    struct tree* t;
+    return TypedData_Make_Struct(klass, struct tree, &tree_type, t);
 }
 
-static VALUE node_initialize(VALUE obj, VALUE key, VALUE value) {
-    struct node* n;
-    TypedData_Get_Struct(obj, struct node, &node_type, n);
-
-    n->key = key;
-    n->value = value;
-    n->next = NULL;
+static VALUE tree_initialize(VALUE obj) {
+    struct tree* t;
+    TypedData_Get_Struct(obj, struct tree, &tree_type, t);
+    t->root = NULL;
 
     return obj;
 }
 
-static VALUE node_new(VALUE klass, VALUE key, VALUE value) {
-    VALUE obj = node_alloc(klass);
-    return node_initialize(obj, key, value);
+static VALUE tree_new(VALUE klass) {
+    VALUE obj = tree_alloc(klass);
+    return tree_initialize(obj);
+}
+
+static struct node* new_node(VALUE key, VALUE value) {
+    struct node* n = malloc(sizeof(struct node));
+    n->key = key;
+    n->value = value;
+    n->red = true;
+    n->lower = NULL;
+    n->higher = NULL;
+    return n;
 }
 
 static VALUE find_value(struct node* n, VALUE key) {
     int comp;
     if (!n) return Qnil;
     comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
-    if (comp == 0) return n->value;
-    return find_value(n->next, key);
-}
-
-static bool insert_node(struct node* n, VALUE key, VALUE value) {
-    int comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
-    if (comp == 0) {
-        n->value = value;
-        return false;
-    }
-    if (!n->next) {
-        n->next = malloc(sizeof(struct node));
-        n->next->key = key;
-        n->next->value = value;
-        n->next->next = NULL;
-
-        return true;
-    }
-    return insert_node(n->next, key, value);
-}
-
-VALUE llrb_initialize(VALUE obj) {
-    rb_iv_set(obj, "@size", INT2FIX(0));
-
-    return obj;
-}
-
-VALUE squareBrackets(VALUE obj, VALUE index) {
-    if (!NIL_P(rb_iv_get(obj, "@root"))) { 
-        struct node* n;
-        TypedData_Get_Struct(rb_iv_get(obj, "@root"), struct node, &node_type, n);
-        
-        return find_value(n, index);
+    switch (comp) {
+        case 0:
+            return n->value;
+        case 1:
+            return find_value(n->higher, key);
+        case -1:
+            return find_value(n->lower, key);
     }
     return Qnil;
 }
 
-VALUE assignSquareBrackets(VALUE obj, VALUE index, VALUE value) {
-    bool inserted_new;
-    if (NIL_P(rb_iv_get(obj, "@root"))) {
-        rb_iv_set(obj, "@root", node_new(rb_cNode, index, value));
-        inserted_new = true;
-    } else {
-        struct node* n;
-        TypedData_Get_Struct(rb_iv_get(obj, "@root"), struct node, &node_type, n);
-        inserted_new = insert_node(n, index, value);
+static struct node* rotate_left(struct node* n) {
+    struct node* tmp = n->higher;
+    bool higher_red = tmp->red;
+    n->higher = tmp->lower;
+    tmp->lower = n;
+    tmp->red = n->red;
+    n->red = higher_red;
+    return tmp;
+}
+
+static struct node* rotate_right(struct node* n) {
+    struct node* tmp = n->lower;
+    bool lower_red = tmp->red;
+    n->lower = tmp->higher;
+    tmp->higher = n;
+    tmp->red = n->red;
+    n->red = lower_red;
+    return tmp;
+}
+
+static void colour_flip(struct node* n) {
+    n->red = !n->red;
+    n->lower->red = !n->lower->red;
+    n->higher->red = !n->higher->red;
+}
+
+static bool higher_red(struct node* n) {
+    if (n && n->higher) return n->higher->red;
+    return false;
+}
+
+static bool lower_red(struct node* n) {
+    if (n && n->lower) return n->lower->red;
+    return false;
+}
+
+static bool lower_lower_red(struct node* n) {
+    if (n && n->lower && n->lower->lower) return n->lower->lower->red;
+    return false;
+}
+
+static struct node* fix_balance(struct node* n) {
+    if (higher_red(n) && !lower_red(n))
+        n = rotate_left(n);
+    if (lower_red(n) && lower_lower_red(n))
+        n = rotate_right(n);
+    if (lower_red(n) && higher_red(n))
+        colour_flip(n);
+    return n;
+}
+
+static struct node* insert_node(struct node* n, VALUE key, VALUE value, int* size_ptr) {
+    int comp;
+    if (!n) {
+        (*size_ptr)++;
+        return new_node(key, value);
     }
-    if (inserted_new)
-        rb_iv_set(obj, "@size", INT2NUM(NUM2INT(rb_iv_get(obj, "@size")) + 1));
+
+    comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
+    switch (comp) {
+    case 0:
+        n->value = value;
+        return n;
+    case 1:
+        n->higher = insert_node(n->higher, key, value, size_ptr);
+        break;
+    case -1:
+        n->lower = insert_node(n->lower, key, value, size_ptr);
+        break;
+    }
+    return fix_balance(n);
+}
+
+VALUE llrb_initialize(VALUE obj) {
+    rb_iv_set(obj, "@size", INT2FIX(0));
+    rb_iv_set(obj, "@tree", tree_new(rb_cTree));
+
+    return obj;
+}
+
+VALUE squareBrackets(VALUE obj, VALUE key) {
+    struct tree* t;
+    TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
+
+    return find_value(t->root, key);
+}
+
+VALUE assignSquareBrackets(VALUE obj, VALUE index, VALUE value) {
+    int size = NUM2INT(rb_iv_get(obj, "@size"));
+    struct tree* t;
+    TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
+    t->root = insert_node(t->root, index, value, &size);
+
+    rb_iv_set(obj, "@size", INT2NUM(size));
     return value;
 }
 
@@ -122,11 +201,11 @@ VALUE size(VALUE obj) {
 
 void Init_cllrb() {
     rb_mCLLRB = rb_define_module("CLLRB");
-    rb_cNode = rb_define_class_under(rb_mCLLRB, "Node", rb_cData);
+    rb_cTree = rb_define_class_under(rb_mCLLRB, "Tree", rb_cData);
     rb_cLLRB = rb_define_class_under(rb_mCLLRB, "LLRB", rb_cObject);
 
-    rb_define_alloc_func(rb_cNode, node_alloc);
-    rb_define_singleton_method(rb_cNode, "new", node_new, 2);
+    rb_define_alloc_func(rb_cTree, tree_alloc);
+    rb_define_singleton_method(rb_cTree, "new", tree_new, 0);
 
     rb_define_method(rb_cLLRB, "initialize", llrb_initialize, 0);
     rb_define_method(rb_cLLRB, "[]", &squareBrackets, 1);

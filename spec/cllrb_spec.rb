@@ -26,6 +26,28 @@ describe CLLRB::LLRB do
       subject[1] = "one"
       expect(subject[2]).to be_nil
     end
+
+    class Num
+      attr_reader :value
+
+      def initialize(n)
+        @value = n
+      end
+
+      def <=> other
+        return @value <=> other.value
+      end
+    end
+
+    it "should search through roughly 2·ln(n) keys at most" do
+      [*1..10_000].shuffle.each { |x| subject[Num.new(x)] = x.to_s }
+      [*1..10_000].sample(100).map { |x| Num.new(x) }.each do |x|
+        expect(x).to receive(:<=>)
+          .at_most((2 * Math.log(10_000)).ceil)
+          .and_call_original
+        expect(subject[x]).to eq x.value.to_s
+      end
+    end
   end
 
   describe "#[]=" do
