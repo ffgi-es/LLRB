@@ -59,6 +59,13 @@ static VALUE node_new(VALUE klass, VALUE key, VALUE value) {
     return node_initialize(obj, key, value);
 }
 
+static VALUE find_value(struct node* n, VALUE key) {
+    int comp;
+    comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
+    if (comp == 0) return n->value;
+    return find_value(n->next, key);
+}
+
 static void insert_node(struct node* n, VALUE key, VALUE value) {
     if (!n->next) {
         n->next = malloc(sizeof(struct node));
@@ -71,16 +78,11 @@ static void insert_node(struct node* n, VALUE key, VALUE value) {
 }
 
 VALUE squareBrackets(VALUE obj, VALUE index) {
-    int comp;
-
     if (!NIL_P(rb_iv_get(obj, "@root"))) { 
         struct node* n;
         TypedData_Get_Struct(rb_iv_get(obj, "@root"), struct node, &node_type, n);
         
-        comp = FIX2INT(rb_funcall(index, rb_intern("<=>"), 1, n->key));
-
-        if (comp == 0) return n->value;
-        else return n->next->value;
+        return find_value(n, index);
     }
     return Qnil;
 }

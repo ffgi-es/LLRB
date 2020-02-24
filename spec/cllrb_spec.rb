@@ -16,8 +16,10 @@ describe CLLRB::LLRB do
     it "should return the correct value for the key" do
       subject[1] = "one"
       subject[2] = "two"
+      subject[3] = "three"
       expect(subject[1]).to eq "one"
       expect(subject[2]).to eq "two"
+      expect(subject[3]).to eq "three"
     end
   end
 
