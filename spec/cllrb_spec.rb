@@ -39,6 +39,12 @@ describe CLLRB::LLRB do
       subject[4] = "random"
       expect(subject.size).to eq 2
     end
+
+    it "should update the value of an en existing key" do
+      subject[3] = "hello"
+      subject[3] = "world"
+      expect(subject[3]).to eq "world"
+    end
   end
 
   describe "#size" do

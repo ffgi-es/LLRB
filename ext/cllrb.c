@@ -68,6 +68,11 @@ static VALUE find_value(struct node* n, VALUE key) {
 }
 
 static void insert_node(struct node* n, VALUE key, VALUE value) {
+    int comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
+    if (comp == 0) {
+        n->value = value;
+        return;
+    }
     if (!n->next) {
         n->next = malloc(sizeof(struct node));
         n->next->key = key;
