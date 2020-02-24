@@ -12,6 +12,13 @@ describe CLLRB::LLRB do
       subject[1] = "one"
       expect(subject[1]).to eq "one"
     end
+
+    it "should return the correct value for the key" do
+      subject[1] = "one"
+      subject[2] = "two"
+      expect(subject[1]).to eq "one"
+      expect(subject[2]).to eq "two"
+    end
   end
 
   describe "#[]=" do
