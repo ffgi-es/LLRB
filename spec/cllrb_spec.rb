@@ -45,6 +45,12 @@ describe CLLRB::LLRB do
       subject[3] = "world"
       expect(subject[3]).to eq "world"
     end
+
+    it "should not increase the size when updating" do
+      subject[3] = "hello"
+      subject[3] = "world"
+      expect(subject.size).to eq 1
+    end
   end
 
   describe "#size" do

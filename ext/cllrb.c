@@ -1,3 +1,4 @@
+#include "stdbool.h"
 #include "ruby.h"
 #include "extconf.h"
 
@@ -67,20 +68,21 @@ static VALUE find_value(struct node* n, VALUE key) {
     return find_value(n->next, key);
 }
 
-static void insert_node(struct node* n, VALUE key, VALUE value) {
+static bool insert_node(struct node* n, VALUE key, VALUE value) {
     int comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
     if (comp == 0) {
         n->value = value;
-        return;
+        return false;
     }
     if (!n->next) {
         n->next = malloc(sizeof(struct node));
         n->next->key = key;
         n->next->value = value;
         n->next->next = NULL;
-    } else {
-        insert_node(n->next, key, value);
+
+        return true;
     }
+    return insert_node(n->next, key, value);
 }
 
 VALUE llrb_initialize(VALUE obj) {
@@ -100,14 +102,17 @@ VALUE squareBrackets(VALUE obj, VALUE index) {
 }
 
 VALUE assignSquareBrackets(VALUE obj, VALUE index, VALUE value) {
+    bool inserted_new;
     if (NIL_P(rb_iv_get(obj, "@root"))) {
         rb_iv_set(obj, "@root", node_new(rb_cNode, index, value));
+        inserted_new = true;
     } else {
         struct node* n;
         TypedData_Get_Struct(rb_iv_get(obj, "@root"), struct node, &node_type, n);
-        insert_node(n, index, value);
+        inserted_new = insert_node(n, index, value);
     }
-    rb_iv_set(obj, "@size", INT2NUM(NUM2INT(rb_iv_get(obj, "@size")) + 1));
+    if (inserted_new)
+        rb_iv_set(obj, "@size", INT2NUM(NUM2INT(rb_iv_get(obj, "@size")) + 1));
     return value;
 }
 
