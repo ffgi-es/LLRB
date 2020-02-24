@@ -3,6 +3,19 @@
 This is a module to implement a Left Leaning Red Black Binary Tree structure
 in ruby.
 
+
+## Requirements
+
+- ruby 2.6.5
+- make
+
+## Installation
+
+In the root directory run
+```
+$ make -C ext
+```
+
 ## Tests
 
 Tests can be run with
