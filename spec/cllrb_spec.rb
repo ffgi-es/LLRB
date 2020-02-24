@@ -21,6 +21,11 @@ describe CLLRB::LLRB do
       expect(subject[2]).to eq "two"
       expect(subject[3]).to eq "three"
     end
+
+    it "should return nil when a key doesn't exist" do
+      subject[1] = "one"
+      expect(subject[2]).to be_nil
+    end
   end
 
   describe "#[]=" do

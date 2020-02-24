@@ -61,6 +61,7 @@ static VALUE node_new(VALUE klass, VALUE key, VALUE value) {
 
 static VALUE find_value(struct node* n, VALUE key) {
     int comp;
+    if (!n) return Qnil;
     comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
     if (comp == 0) return n->value;
     return find_value(n->next, key);
