@@ -212,7 +212,8 @@ static VALUE max(VALUE obj) {
 }
 
 static VALUE find_min(struct node* n) {
-    return rb_ary_new_from_args(2, n->key, n->value);
+    if (!n->lower) return rb_ary_new_from_args(2, n->key, n->value);
+    return find_min(n->lower);
 }
 
 static VALUE min(VALUE obj) {

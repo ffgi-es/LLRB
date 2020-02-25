@@ -106,5 +106,10 @@ describe CLLRB::LLRB do
       subject[13] = "boooom"
       expect(subject.min).to eq [13, "boooom"]
     end
+
+    it "should return the min for 10 randomly inserted pairs" do
+      [*1..10].shuffle.each { |x| subject[x] = x.to_s }
+      expect(subject.min).to eq [1, "1"]
+    end
   end
 end
