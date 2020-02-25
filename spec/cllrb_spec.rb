@@ -112,4 +112,12 @@ describe CLLRB::LLRB do
       expect(subject.min).to eq [1, "1"]
     end
   end
+
+  describe "#each" do
+    it "should do nothing with an empty tree" do
+      arr = []
+      subject.each { |k, v| arr << [k, v] }
+      expect(arr).to eq []
+    end
+  end
 end
