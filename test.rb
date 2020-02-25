@@ -73,6 +73,9 @@ def test_structures n
     x.report("- llrb:") do
       N1.times { llrb.min }
     end
+    x.report("- C tree:") do
+      N1.times { clrb.min }
+    end
     puts
 
     puts "Iteration (once):"
