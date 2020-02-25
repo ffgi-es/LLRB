@@ -224,6 +224,9 @@ static VALUE min(VALUE obj) {
 }
 
 static VALUE each(VALUE obj) {
+    struct tree* t;
+    TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
+    if (t->root) rb_yield_values(2, t->root->key, t->root->value);
     return Qnil;
 }
 

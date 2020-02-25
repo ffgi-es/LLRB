@@ -119,5 +119,12 @@ describe CLLRB::LLRB do
       subject.each { |k, v| arr << [k, v] }
       expect(arr).to eq []
     end
+
+    it "should execute the block for a single element" do
+      subject[11] = "block run"
+      arr = []
+      subject.each { |k, v| arr << [v, k] }
+      expect(arr).to eq [["block run", 11]]
+    end
   end
 end
