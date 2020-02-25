@@ -1,4 +1,5 @@
 require './lib/rubyllrb'
+require './ext/cllrb'
 require 'benchmark'
 
 N0 = 50000
@@ -11,6 +12,7 @@ def test_structures n
   initial_array = [*1..n].shuffle
   hash = Hash.new
   llrb = RubyLLRB::LLRB.new
+  clrb = CLLRB::LLRB.new
 
   Benchmark.bm(16) do |x|
     puts "Insertion:"
@@ -20,6 +22,9 @@ def test_structures n
     x.report("- llrb:") do
       initial_array.each { |e| llrb.insert(e, e.to_s) }
     end
+    x.report("- C tree:") do
+      initial_array.each { |e| clrb[e] = e.to_s }
+    end
     puts
 
     puts "Searching (#{N0} times):"
@@ -28,6 +33,18 @@ def test_structures n
     end
     x.report("- llrb:") do
       N0.times { llrb.search(rand(1..n)) }
+    end
+    x.report("- C tree:") do
+      N0.times { clrb[rand(1..n)] }
+    end
+    puts
+
+    puts "Returning size (#{N0} times):"
+    x.report("- hash") do
+      N0.times { hash.size }
+    end
+    x.report("- llrb") do
+      N0.times { llrb.size }
     end
     puts
 
