@@ -96,4 +96,10 @@ describe CLLRB::LLRB do
       expect(subject.max).to eq [10, "10"]
     end
   end
+
+  describe "#min" do
+    it "should return nil for an empty tree" do
+      expect(subject.min).to be_nil
+    end
+  end
 end
