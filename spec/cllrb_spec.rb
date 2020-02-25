@@ -85,5 +85,10 @@ describe CLLRB::LLRB do
     it "should return nil for an empty tree" do
       expect(subject.max).to be_nil
     end
+
+    it "should return the an array for one item in a tree" do
+      subject[5] = "blanket"
+      expect(subject.max).to eq [5, "blanket"]
+    end
   end
 end
