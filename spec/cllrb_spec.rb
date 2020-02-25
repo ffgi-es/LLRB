@@ -80,4 +80,10 @@ describe CLLRB::LLRB do
       expect(subject.size).to eq 0
     end
   end
+
+  describe "#max" do
+    it "should return nil for an empty tree" do
+      expect(subject.max).to be_nil
+    end
+  end
 end

@@ -171,21 +171,21 @@ static struct node* insert_node(struct node* n, VALUE key, VALUE value, int* siz
     return fix_balance(n);
 }
 
-VALUE llrb_initialize(VALUE obj) {
+static VALUE llrb_initialize(VALUE obj) {
     rb_iv_set(obj, "@size", INT2FIX(0));
     rb_iv_set(obj, "@tree", tree_new(rb_cTree));
 
     return obj;
 }
 
-VALUE squareBrackets(VALUE obj, VALUE key) {
+static VALUE squareBrackets(VALUE obj, VALUE key) {
     struct tree* t;
     TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
 
     return find_value(t->root, key);
 }
 
-VALUE assignSquareBrackets(VALUE obj, VALUE index, VALUE value) {
+static VALUE assignSquareBrackets(VALUE obj, VALUE index, VALUE value) {
     int size = NUM2INT(rb_iv_get(obj, "@size"));
     struct tree* t;
     TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
@@ -195,8 +195,12 @@ VALUE assignSquareBrackets(VALUE obj, VALUE index, VALUE value) {
     return value;
 }
 
-VALUE size(VALUE obj) {
+static VALUE size(VALUE obj) {
     return rb_iv_get(obj, "@size");
+}
+
+static VALUE max(VALUE obj) {
+    return Qnil;
 }
 
 void Init_cllrb() {
@@ -211,4 +215,5 @@ void Init_cllrb() {
     rb_define_method(rb_cLLRB, "[]", &squareBrackets, 1);
     rb_define_method(rb_cLLRB, "[]=", &assignSquareBrackets, 2);
     rb_define_method(rb_cLLRB, "size", &size, 0);
+    rb_define_method(rb_cLLRB, "max", max, 0);
 }
