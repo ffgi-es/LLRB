@@ -200,7 +200,7 @@ static VALUE size(VALUE obj) {
 }
 
 static VALUE find_max(struct node* n) {
-    if (!n->higher) return rb_ary_new_from_args(2, n->key, n-> value);
+    if (!n->higher) return rb_ary_new_from_args(2, n->key, n->value);
     return find_max(n->higher);
 }
 
@@ -211,8 +211,15 @@ static VALUE max(VALUE obj) {
     return find_max(t->root);
 }
 
+static VALUE find_min(struct node* n) {
+    return rb_ary_new_from_args(2, n->key, n->value);
+}
+
 static VALUE min(VALUE obj) {
-    return Qnil;
+    struct tree* t;
+    TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
+    if (!t->root) return Qnil;
+    return find_min(t->root);
 }
 
 void Init_cllrb() {
