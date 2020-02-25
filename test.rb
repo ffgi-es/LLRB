@@ -40,11 +40,14 @@ def test_structures n
     puts
 
     puts "Returning size (#{N0} times):"
-    x.report("- hash") do
+    x.report("- hash:") do
       N0.times { hash.size }
     end
-    x.report("- llrb") do
+    x.report("- llrb:") do
       N0.times { llrb.size }
+    end
+    x.report("- C tree:") do
+      N0.times { clrb.size }
     end
     puts
 
@@ -57,6 +60,9 @@ def test_structures n
     end
     x.report("- llrb:") do
       N1.times { llrb.max }
+    end
+    x.report("- C tree:") do
+      N1.times { clrb.max }
     end
     puts
 

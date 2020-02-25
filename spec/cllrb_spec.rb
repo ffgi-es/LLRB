@@ -90,5 +90,10 @@ describe CLLRB::LLRB do
       subject[5] = "blanket"
       expect(subject.max).to eq [5, "blanket"]
     end
+
+    it "should return the max for 10 randomly inserted pairs" do
+      [*1..10].shuffle.each { |x| subject[x] = x.to_s }
+      expect(subject.max).to eq [10, "10"]
+    end
   end
 end

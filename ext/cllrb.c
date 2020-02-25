@@ -199,11 +199,16 @@ static VALUE size(VALUE obj) {
     return rb_iv_get(obj, "@size");
 }
 
+static VALUE find_max(struct node* n) {
+    if (!n->higher) return rb_ary_new_from_args(2, n->key, n-> value);
+    return find_max(n->higher);
+}
+
 static VALUE max(VALUE obj) {
     struct tree* t;
     TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
     if (!t->root) return Qnil;
-    return rb_ary_new_from_args(2, t->root->key, t->root->value);
+    return find_max(t->root);
 }
 
 void Init_cllrb() {
