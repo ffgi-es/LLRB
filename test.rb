@@ -88,6 +88,9 @@ def test_structures n
     x.report("- llrb:") do
       llrb.each { |k, v| "#{k.inspect}: #{v.inspect}" }
     end
+    x.report("- C tree:") do
+      clrb.each { |k, v| "#{k.inspect}: #{v.inspect}" }
+    end
     puts
 
     puts "Deletion (#{n / 10} elements):"

@@ -223,10 +223,16 @@ static VALUE min(VALUE obj) {
     return find_min(t->root);
 }
 
+static void each_node(struct node* n) {
+    if (n->lower) each_node(n->lower);
+    rb_yield_values(2, n->key, n->value);
+    if (n->higher) each_node(n->higher);
+}
+
 static VALUE each(VALUE obj) {
     struct tree* t;
     TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
-    if (t->root) rb_yield_values(2, t->root->key, t->root->value);
+    if (t->root) each_node(t->root);
     return Qnil;
 }
 

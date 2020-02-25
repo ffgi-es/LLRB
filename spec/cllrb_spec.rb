@@ -126,5 +126,13 @@ describe CLLRB::LLRB do
       subject.each { |k, v| arr << [v, k] }
       expect(arr).to eq [["block run", 11]]
     end
+
+    it "should excute the block for each element in order" do
+      [*1..30].shuffle.each { |x| subject[x] = x.to_s }
+      arr = []
+      subject.each { |k, v| arr << [k, v] }
+      expected_arr = [*1..30].map { |x| [x, x.to_s] }
+      expect(arr).to eq expected_arr
+    end
   end
 end
