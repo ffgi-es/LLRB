@@ -134,5 +134,10 @@ describe CLLRB::LLRB do
       expected_arr = [*1..30].map { |x| [x, x.to_s] }
       expect(arr).to eq expected_arr
     end
+
+    it "should do nothing if not given a block" do
+      [*1..30].shuffle.each { |x| subject[x] = x.to_s }
+      expect { subject.each }.to raise_error ArgumentError, "Expected block"
+    end
   end
 end

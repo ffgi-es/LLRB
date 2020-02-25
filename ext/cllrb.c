@@ -231,6 +231,8 @@ static void each_node(struct node* n) {
 
 static VALUE each(VALUE obj) {
     struct tree* t;
+    if (!rb_block_given_p())
+        rb_raise(rb_eArgError, "Expected block");
     TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
     if (t->root) each_node(t->root);
     return Qnil;
