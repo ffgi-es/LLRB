@@ -175,5 +175,12 @@ describe CLLRB::LLRB do
       subject[3] = "shifted"
       expect(subject.shift).to eq [3, "shifted"]
     end
+
+    it "should remove the element from the tree when shifting" do
+      subject[3] = "not there"
+      subject.shift
+      expect(subject[3]).to be_nil
+      expect(subject.size).to eq 0
+    end
   end
 end
