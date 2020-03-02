@@ -190,4 +190,10 @@ describe CLLRB::LLRB do
       expect(subject.size).to eq 9
     end
   end
+
+  describe "#delete" do
+    it "should return nil for an empty tree" do
+      expect(subject.delete(rand(1..100))).to be_nil
+    end
+  end
 end

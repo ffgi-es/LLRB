@@ -327,6 +327,10 @@ static VALUE shift(VALUE obj) {
     return result;
 }
 
+static VALUE delete(VALUE obj, VALUE key) {
+    return Qnil;
+}
+
 void Init_cllrb() {
     rb_mCLLRB = rb_define_module("CLLRB");
     rb_cTree = rb_define_class_under(rb_mCLLRB, "Tree", rb_cData);
@@ -344,4 +348,5 @@ void Init_cllrb() {
     rb_define_method(rb_cLLRB, "each", each, 0);
     rb_define_method(rb_cLLRB, "pop", pop, 0);
     rb_define_method(rb_cLLRB, "shift", shift, 0);
+    rb_define_method(rb_cLLRB, "delete", delete, 1);
 }
