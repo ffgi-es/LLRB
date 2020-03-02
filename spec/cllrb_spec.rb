@@ -170,5 +170,10 @@ describe CLLRB::LLRB do
     it "should return nil for an empty tree" do
       expect(subject.shift).to be_nil
     end
+
+    it "should return the only element in a tree of one key pair" do
+      subject[3] = "shifted"
+      expect(subject.shift).to eq [3, "shifted"]
+    end
   end
 end
