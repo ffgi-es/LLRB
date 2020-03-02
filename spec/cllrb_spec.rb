@@ -195,5 +195,17 @@ describe CLLRB::LLRB do
     it "should return nil for an empty tree" do
       expect(subject.delete(rand(1..100))).to be_nil
     end
+
+    it "should return the value specified in a tree of one pair" do
+      subject[54] = "testing delete"
+      expect(subject.delete(54)).to eq "testing delete"
+    end
+
+    it "should remove the key-value pair from the tree" do
+      subject[56] = "remove the pair"
+      subject.delete(56)
+      expect(subject[56]).to be_nil
+      expect(subject.size).to eq 0
+    end
   end
 end

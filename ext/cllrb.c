@@ -328,7 +328,18 @@ static VALUE shift(VALUE obj) {
 }
 
 static VALUE delete(VALUE obj, VALUE key) {
-    return Qnil;
+    struct tree* t;
+    VALUE result;
+
+    TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
+    if (!t->root) return Qnil;
+
+    result = t->root->value;
+    free_node(t->root);
+    t->root = NULL;
+
+    rb_iv_set(obj, "@size", INT2NUM(NUM2INT(rb_iv_get(obj, "@size")) - 1));
+    return result;
 }
 
 void Init_cllrb() {
