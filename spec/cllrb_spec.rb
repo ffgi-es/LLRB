@@ -141,8 +141,8 @@ describe CLLRB::LLRB do
     end
   end
 
-  describe "pop" do
-    it "should return nil for empty tree" do
+  describe "#pop" do
+    it "should return nil for an empty tree" do
       expect(subject.pop).to be_nil
     end
 
@@ -163,6 +163,12 @@ describe CLLRB::LLRB do
       expect(subject.pop).to eq [10, "10"]
       expect(subject[10]).to be_nil
       expect(subject.size).to eq 9
+    end
+  end
+
+  describe "#shift" do
+    it "should return nil for an empty tree" do
+      expect(subject.shift).to be_nil
     end
   end
 end
