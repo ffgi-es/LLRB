@@ -101,6 +101,9 @@ def test_structures n
     x.report("- llrb:") do
       deletion_array.each { |e| llrb.delete(e) }
     end
+    x.report("- C tree:") do
+      deletion_array.each { |e| clrb.delete(e) }
+    end
     puts
 
     puts "Delete maximum (#{N1} times):"
