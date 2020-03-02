@@ -145,5 +145,10 @@ describe CLLRB::LLRB do
     it "should return nil for empty tree" do
       expect(subject.pop).to be_nil
     end
+
+    it "should return the only element in a tree of one key-pair" do
+      subject[4] = "popping"
+      expect(subject.pop).to eq [4, "popping"]
+    end
   end
 end

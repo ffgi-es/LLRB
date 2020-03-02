@@ -240,7 +240,10 @@ static VALUE each(VALUE obj) {
 }
 
 static VALUE pop(VALUE obj) {
-    return Qnil;
+    struct tree* t;
+    TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
+    if (!t->root) return Qnil;
+    return rb_ary_new_from_args(2, t->root->key, t->root->value);
 }
 
 void Init_cllrb() {
