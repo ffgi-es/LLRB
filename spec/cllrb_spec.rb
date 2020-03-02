@@ -150,5 +150,12 @@ describe CLLRB::LLRB do
       subject[4] = "popping"
       expect(subject.pop).to eq [4, "popping"]
     end
+
+    it "should remove the element from from the tree" do
+      subject[5] = "remove pop"
+      subject.pop
+      expect(subject[5]).to be_nil
+      expect(subject.size).to eq 0
+    end
   end
 end
