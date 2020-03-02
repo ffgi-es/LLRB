@@ -291,6 +291,38 @@ static struct node* deleteMin(struct node* n, struct node **result) {
     return fix_balance(n);
 }
 
+static struct node* delete_node(struct node* n, VALUE key, VALUE* result) {
+    int comp;
+
+    comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
+    if (comp < 0) {
+        if (!lower_red(n) && !lower_lower_red(n)) n = move_red_left(n);
+        n->lower = delete_node(n->lower, key, result);
+    } else {
+        if (lower_red(n)) n = rotate_right(n);
+
+        comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
+        if (comp == 0 && !n->higher) {
+            *result = n->value;
+            free(n);
+            return NULL;
+        }
+        if (!higher_red(n) && !higher_lower_red(n)) n = move_red_right(n);
+
+        comp = FIX2INT(rb_funcall(key, rb_intern("<=>"), 1, n->key));
+        if (comp == 0) {
+            struct node* min;
+            *result = n->value;
+            n->higher = deleteMin(n->higher, &min);
+            n->key = min->key;
+            n->value = min->value;
+            free(min);
+        }
+        else n->higher = delete_node(n->higher, key, result);
+    }
+    return fix_balance(n);
+}
+
 static VALUE pop(VALUE obj) {
     struct tree* t;
     struct node* result_node;
@@ -334,9 +366,8 @@ static VALUE delete(VALUE obj, VALUE key) {
     TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
     if (!t->root) return Qnil;
 
-    result = t->root->value;
-    free_node(t->root);
-    t->root = NULL;
+    t->root = delete_node(t->root, key, &result);
+    if (t->root) t->root->red = false;
 
     rb_iv_set(obj, "@size", INT2NUM(NUM2INT(rb_iv_get(obj, "@size")) - 1));
     return result;

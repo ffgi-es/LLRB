@@ -207,5 +207,15 @@ describe CLLRB::LLRB do
       expect(subject[56]).to be_nil
       expect(subject.size).to eq 0
     end
+
+    it "should remove the specified node for larger tree" do
+      [*1..10].shuffle.each { |x| subject[x] = x.to_s }
+      key = rand(1..10)
+      expect(subject.delete(key)).to eq key.to_s
+      expect(subject[key]).to be_nil
+      expect(subject.size).to eq 9
+
+      (1..10).each { |x| expect(subject[x]).to eq x.to_s if x != key }
+    end
   end
 end
