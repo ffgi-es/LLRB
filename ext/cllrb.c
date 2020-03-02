@@ -220,10 +220,6 @@ static VALUE assignSquareBrackets(VALUE obj, VALUE index, VALUE value) {
     return value;
 }
 
-static VALUE size(VALUE obj) {
-    return rb_iv_get(obj, "@size");
-}
-
 static VALUE find_max(struct node* n) {
     if (!n->higher) return rb_ary_new_from_args(2, n->key, n->value);
     return find_max(n->higher);
@@ -384,9 +380,9 @@ void Init_cllrb() {
     rb_define_singleton_method(rb_cTree, "new", tree_new, 0);
 
     rb_define_method(rb_cLLRB, "initialize", llrb_initialize, 0);
+    rb_define_attr(rb_cLLRB, "size", 1, 0);
     rb_define_method(rb_cLLRB, "[]", &squareBrackets, 1);
     rb_define_method(rb_cLLRB, "[]=", &assignSquareBrackets, 2);
-    rb_define_method(rb_cLLRB, "size", &size, 0);
     rb_define_method(rb_cLLRB, "max", max, 0);
     rb_define_method(rb_cLLRB, "min", min, 0);
     rb_define_method(rb_cLLRB, "each", each, 0);
