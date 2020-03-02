@@ -190,6 +190,7 @@ static VALUE assignSquareBrackets(VALUE obj, VALUE index, VALUE value) {
     struct tree* t;
     TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
     t->root = insert_node(t->root, index, value, &size);
+    t->root->red = false;
 
     rb_iv_set(obj, "@size", INT2NUM(size));
     return value;
