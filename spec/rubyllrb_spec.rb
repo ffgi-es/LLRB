@@ -203,6 +203,7 @@ describe RubyLLRB::LLRB do
       set_up(subject, 10)
       expect(subject.delete(15)).to be_nil
       expect(subject.size).to eq 10
+      expect(subject.delete(-3)).to be_nil
     end
 
     it "should delete and return the value of the key" do

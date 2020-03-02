@@ -366,6 +366,8 @@ static VALUE delete(VALUE obj, VALUE key) {
     TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
     if (!t->root) return Qnil;
 
+    if(find_value(t->root, key) == Qnil) return Qnil;
+
     t->root = delete_node(t->root, key, &result);
     if (t->root) t->root->red = false;
 

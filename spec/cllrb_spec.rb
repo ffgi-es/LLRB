@@ -217,5 +217,11 @@ describe CLLRB::LLRB do
 
       (1..10).each { |x| expect(subject[x]).to eq x.to_s if x != key }
     end
+
+    it "should return nil if the key doesn't exist" do
+      subject[34] = "here"
+      expect(subject.delete(23)).to be_nil
+      expect(subject.delete(45)).to be_nil
+    end
   end
 end
