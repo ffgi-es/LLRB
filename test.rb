@@ -110,6 +110,9 @@ def test_structures n
     x.report("- llrb:") do
       N1.times { llrb.pop }
     end
+    x.report("- C tree:") do
+      N1.times { clrb.pop }
+    end
     puts
 
     puts "Delete minimum (#{N1} times):"
@@ -118,6 +121,9 @@ def test_structures n
     end
     x.report("- llrb:") do
       N1.times { llrb.shift }
+    end
+    x.report("- C tree:") do
+      N1.times { clrb.shift }
     end
   end
 end
