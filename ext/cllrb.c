@@ -239,6 +239,10 @@ static VALUE each(VALUE obj) {
     return Qnil;
 }
 
+static VALUE pop(VALUE obj) {
+    return Qnil;
+}
+
 void Init_cllrb() {
     rb_mCLLRB = rb_define_module("CLLRB");
     rb_cTree = rb_define_class_under(rb_mCLLRB, "Tree", rb_cData);
@@ -254,4 +258,5 @@ void Init_cllrb() {
     rb_define_method(rb_cLLRB, "max", max, 0);
     rb_define_method(rb_cLLRB, "min", min, 0);
     rb_define_method(rb_cLLRB, "each", each, 0);
+    rb_define_method(rb_cLLRB, "pop", pop, 0);
 }

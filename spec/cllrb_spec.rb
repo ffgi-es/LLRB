@@ -140,4 +140,10 @@ describe CLLRB::LLRB do
       expect { subject.each }.to raise_error ArgumentError, "Expected block"
     end
   end
+
+  describe "pop" do
+    it "should return nil for empty tree" do
+      expect(subject.pop).to be_nil
+    end
+  end
 end
