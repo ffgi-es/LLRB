@@ -182,5 +182,12 @@ describe CLLRB::LLRB do
       expect(subject[3]).to be_nil
       expect(subject.size).to eq 0
     end
+
+    it "should return and remove the minium key from the tree" do
+      [*1..10].shuffle.each { |x| subject[x] = x.to_s }
+      expect(subject.shift).to eq [1, "1"]
+      expect(subject[1]).to be_nil
+      expect(subject.size).to eq 9
+    end
   end
 end
