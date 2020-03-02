@@ -157,5 +157,12 @@ describe CLLRB::LLRB do
       expect(subject[5]).to be_nil
       expect(subject.size).to eq 0
     end
+
+    it "should return and remove the maximum element from a tree" do
+      [*1..10].shuffle.each { |x| subject[x] = x.to_s }
+      expect(subject.pop).to eq [10, "10"]
+      expect(subject[10]).to be_nil
+      expect(subject.size).to eq 9
+    end
   end
 end

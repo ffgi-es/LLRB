@@ -129,6 +129,11 @@ static bool higher_red(struct node* n) {
     return false;
 }
 
+static bool higher_lower_red(struct node* n) {
+    if (n && n->higher && n->higher->lower) return n->higher->lower->red;
+    return false;
+}
+
 static bool lower_red(struct node* n) {
     if (n && n->lower) return n->lower->red;
     return false;
@@ -137,6 +142,15 @@ static bool lower_red(struct node* n) {
 static bool lower_lower_red(struct node* n) {
     if (n && n->lower && n->lower->lower) return n->lower->lower->red;
     return false;
+}
+
+static struct node* move_red_right(struct node* n) {
+    colour_flip(n);
+    if (lower_lower_red(n)) {
+        n = rotate_right(n);
+        colour_flip(n);
+    }
+    return n;
 }
 
 static struct node* fix_balance(struct node* n) {
@@ -239,14 +253,35 @@ static VALUE each(VALUE obj) {
     return Qnil;
 }
 
+static struct node* deleteMax(struct node* n, struct node **result) {
+    if (lower_red(n)) n = rotate_right(n);
+
+    if (!n->higher) {
+        *result = n;
+        return NULL;
+    }
+
+    if (!higher_red(n) && !higher_lower_red(n)) n = move_red_right(n);
+
+    n->higher = deleteMax(n->higher, result);
+
+    return fix_balance(n);
+}
+
 static VALUE pop(VALUE obj) {
     struct tree* t;
+    struct node* result_node;
     VALUE result;
+
     TypedData_Get_Struct(rb_iv_get(obj, "@tree"), struct tree, &tree_type, t);
     if (!t->root) return Qnil;
-    result = rb_ary_new_from_args(2, t->root->key, t->root->value);
-    free_node(t->root);
-    t->root = NULL;
+
+    t->root = deleteMax(t->root, &result_node);
+    if (t->root) t->root->red = false;
+
+    result = rb_ary_new_from_args(2, result_node->key, result_node->value);
+    free(result_node);
+
     rb_iv_set(obj, "@size", INT2NUM(NUM2INT(rb_iv_get(obj, "@size")) - 1));
     return result;
 }
